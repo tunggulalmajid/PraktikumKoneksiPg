@@ -22,7 +22,7 @@ public static class Config
           "Port=5432;" +  // port default PostgreSQL
           "Database=db_mahasiswa;" +
           "Username=postgres;" +
-          "Password=Password123";
+          "Password=admin123";
 }
 
 public class Mahasiswa
@@ -91,7 +91,50 @@ public class Mahasiswa
         return hasil;
     }
 
+    public void UpdateMahasiswa(int id, string jurusanBaru, decimal ipkBaru)
+    {
+        string sql = @"UPDATE mahasiswa 
+            SET jurusan = @jurusan, ipk = @ipk 
+            WHERE id = @id";
 
+        using (var conn = db.GetConnection())
+        {
+            conn.Open();
+            using (var cmd = new NpgsqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@jurusan", jurusanBaru);
+                cmd.Parameters.AddWithValue("@ipk", ipkBaru);
+
+                int affected = cmd.ExecuteNonQuery();
+
+                if (affected > 0)
+                    Console.WriteLine("Data berhasil diupdate!");
+                else
+                    Console.WriteLine("ID tidak ditemukan.");
+            }
+        }
+    }
+
+    public void HapusMahasiswa(int id)
+    {
+        string sql = "DELETE FROM mahasiswa WHERE id = @id";
+
+        using (var conn = db.GetConnection())
+        {
+            conn.Open();
+            using (var cmd = new NpgsqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                int affected = cmd.ExecuteNonQuery();
+
+                if (affected > 0)
+                    Console.WriteLine($"Mahasiswa ID {id} dihapus.");
+                else
+                    Console.WriteLine("Data tidak ditemukan.");
+            }
+        }
+    }
 }
 
 
@@ -101,10 +144,13 @@ internal class Program
     {
         Mahasiswa mhs = new Mahasiswa();
         //mhs.TambahMahasiswa("Subar7", "242410102027", "Teknologi Informasi", 4);
-        List<string> listMahasiswa = mhs.GetSemuaMahasiswa();
-        foreach (var value in listMahasiswa) 
-        {
-            Console.WriteLine(value);
-        }
+        //List<string> listMahasiswa = mhs.GetSemuaMahasiswa();
+        //foreach (var value in listMahasiswa) 
+        //{
+        //    Console.WriteLine(value);
+        //}
+        //mhs.UpdateMahasiswa(3, "Sistem Informasi", 3);
+        mhs.UpdateMahasiswa(3, "Sistem Informasi", 3);
+        mhs.HapusMahasiswa(10);
     }
 }
